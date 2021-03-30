@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <ImageView
+        android:id="@+id/image_view_menu"
+        android:layout_width="@dimen/back_button_image_size"
+        android:layout_height="@dimen/back_button_image_size"
+        android:layout_margin="@dimen/small_margin"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/edit_Text_search_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_sort"
+        app:tint="@color/text_color_dark" />
+
+    <EditText
+        android:id="@+id/edit_Text_search_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/medium_margin"
+        android:layout_marginTop="@dimen/medium_margin"
+        android:layout_marginBottom="@dimen/medium_margin"
+        android:background="@drawable/edit_text_focus_selector"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="@dimen/small_margin"
+        android:drawableTint="@color/text_color_dark"
+        android:ellipsize="end"
+        android:fontFamily="@font/josefin_sans"
+
+        android:hint="@string/search_hint"
+        android:imeOptions="actionDone"
+        android:maxLines="1"
+        android:padding="@dimen/semi_medium_margin"
+        android:singleLine="true"
+        android:textColor="@color/text_color_dark"
+        android:textColorHint="@color/text_color_dark"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/image_button_profile"
+        app:layout_constraintStart_toEndOf="@id/image_view_menu"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_button_profile"
+        android:layout_width="@dimen/back_button_image_size"
+        android:layout_height="@dimen/back_button_image_size"
+        android:layout_margin="@dimen/medium_margin"
+        android:scaleType="centerCrop"
+        android:src="@drawable/pp1"
+        android:visibility="visible"
+        app:civ_border_color="@color/light_blue"
+        app:civ_border_overlay="true"
+        app:civ_border_width="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/edit_Text_search_bar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/text_view_search_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/medium_margin"
+        android:layout_marginTop="@dimen/tiny_margin"
+        android:fontFamily="@font/josefin_sans"
+        android:gravity="center_horizontal|center_vertical"
+        android:padding="@dimen/tiny_margin"
+        android:text="@string/cancel"
+        android:textColor="@color/light_blue"
+        android:textSize="@dimen/medium_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/edit_Text_search_bar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
+
+    <View
+        android:id="@+id/view_bottom_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@drawable/line_view_shape"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <!--        <ImageButton-->
+    <!--            android:id="@+id/image_button_profile"-->
+    <!--            android:layout_width="48dp"-->
+    <!--            android:layout_height="48dp"-->
+    <!--            android:layout_margin="@dimen/medium_margin"-->
+    <!--            android:background="@android:color/transparent"-->
+    <!--            android:scaleType="fitCenter"-->
+    <!--            android:src="@mipmap/ic_launcher_round"-->
+    <!--            android:tint="@color/text_color_dark"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintStart_toEndOf="@id/edit_Text_search_bar"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
