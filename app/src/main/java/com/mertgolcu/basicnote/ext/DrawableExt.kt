@@ -1,12 +1,8 @@
-package com.mertgolcu.basicnote.extensions
+package com.mertgolcu.basicnote.ext
 
 import android.content.res.Resources
 import android.graphics.drawable.*
-import android.widget.EditText
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
-import androidx.core.widget.addTextChangedListener
-import com.mertgolcu.basicnote.R
 
 fun Drawable.overrideColor(@ColorInt colorInt: Int) {
     when (this) {
@@ -24,26 +20,7 @@ fun Drawable.overrideColor(@ColorInt colorInt: Int) {
     }
 }
 
-fun EditText.changeStrokeUI() {
-    if (this.text.isBlank())
-        this.background.overrideColor(
-            ContextCompat.getColor(
-                this.context,
-                R.color.error_red
-            )
-        ) else this.background.overrideColor(
-        ContextCompat.getColor(
-            this.context,
-            R.color.edit_text_border
-        )
-    )
-}
 
-fun EditText.addChangeStrokeUIListener() {
-    this.addTextChangedListener {
-        this.changeStrokeUI()
-    }
-}
 
 val Int.dp: Int
     get() = (this * Resources.getSystem().displayMetrics.density + 0.5f).toInt()

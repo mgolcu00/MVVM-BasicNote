@@ -1,4 +1,4 @@
-package com.mertgolcu.basicnote.extensions
+package com.mertgolcu.basicnote.ext
 
 import android.content.Context
 import android.view.View

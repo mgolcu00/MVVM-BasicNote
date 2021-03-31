@@ -10,8 +10,7 @@ import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.databinding.FragmentSignUpBinding
 import com.mertgolcu.basicnote.event.LoginAndRegisterErrorType
-import com.mertgolcu.basicnote.event.SignUpEvent
-import com.mertgolcu.basicnote.extensions.*
+import com.mertgolcu.basicnote.ext.*
 import com.mertgolcu.basicnote.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -53,7 +52,7 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
             viewModel.signUpEvent.collect { event ->
                 loadingDialog.dismissDialog()
                 when (event) {
-                    is SignUpEvent.ShowSignUpErrorMessage -> {
+                    is SignUpViewEvent.ShowSignUpErrorMessage -> {
                         binding.editTextPassword.changeStrokeUI()
                         binding.editTextEmail.changeStrokeUI()
                         binding.editTextFullName.changeStrokeUI()
@@ -75,14 +74,14 @@ class SignUpFragment : Fragment(R.layout.fragment_sign_up) {
 
                         }
                     }
-                    is SignUpEvent.SignUpSuccess -> {
+                    is SignUpViewEvent.SignUpSuccess -> {
                         event.msg.showSnackBar(requireView(), R.color.success_green)
                         // go to notes
                         val action = SignUpFragmentDirections.actionSignUpFragmentToHomeFragment()
                         findNavController().navigate(action)
 
                     }
-                    is SignUpEvent.NavigateToLoginScreen -> {
+                    is SignUpViewEvent.NavigateToLoginScreen -> {
                         findNavController().popBackStack()
                     }
                 }

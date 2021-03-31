@@ -19,16 +19,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.data.Note
 import com.mertgolcu.basicnote.databinding.FragmentHomeBinding
-import com.mertgolcu.basicnote.event.HomeEvent
-import com.mertgolcu.basicnote.extensions.hideKeyboard
-import com.mertgolcu.basicnote.extensions.showSnackBar
+import com.mertgolcu.basicnote.ext.hideKeyboard
+import com.mertgolcu.basicnote.ext.showSnackBar
 import com.mertgolcu.basicnote.ui.home.adapter.NoteAdapter
 import com.mertgolcu.basicnote.ui.home.adapter.NoteLoadStateAdapter
 import com.mertgolcu.basicnote.utils.*
 import com.mertgolcu.basicnote.utils.SwipeHelper.UnderlayButtonClickListener
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
-import java.util.*
 
 
 @AndroidEntryPoint
@@ -160,13 +158,13 @@ class HomeFragment : Fragment(R.layout.fragment_home), NoteAdapter.OnItemClickLi
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             viewModel.homeEvent.collect { event ->
                 when (event) {
-                    is HomeEvent.NavigateToDeleteNoteScreen -> {
+                    is HomeViewEvent.NavigateToDeleteNoteScreen -> {
                         val action =
                             HomeFragmentDirections
                                 .actionHomeFragmentToDeleteNoteDialog(event.note)
                         findNavController().navigate(action)
                     }
-                    is HomeEvent.NavigateToProfile ->
+                    is HomeViewEvent.NavigateToProfile ->
                         if (event.user != null) {
                             val action =
                                 HomeFragmentDirections
@@ -178,7 +176,7 @@ class HomeFragment : Fragment(R.layout.fragment_home), NoteAdapter.OnItemClickLi
                             }
                         }
 
-                    is HomeEvent.NavigateNote -> {
+                    is HomeViewEvent.NavigateNote -> {
                         val action = HomeFragmentDirections.actionHomeFragmentToNoteFragment(
                             event.note,
                             event.mode

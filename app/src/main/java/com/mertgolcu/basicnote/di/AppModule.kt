@@ -1,6 +1,10 @@
 package com.mertgolcu.basicnote.di
 
+import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.Fragment
 import com.mertgolcu.basicnote.api.BasicNoteApi
+import com.mertgolcu.basicnote.core.BaseFragment
+import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.IRepository
 import com.mertgolcu.basicnote.utils.BASE_URL
@@ -39,6 +43,12 @@ object AppModule {
     fun provideApplicationScope() =
         CoroutineScope(SupervisorJob()) // Learn This specially "Coroutine"
 
+
+//    @Singleton
+//    @Provides
+//    fun provideBaseFragment(baseFragment: BaseFragment<ViewDataBinding, BaseViewModel>): Fragment {
+//        return baseFragment
+//    }
 }
 
 @Module

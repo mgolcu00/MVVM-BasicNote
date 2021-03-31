@@ -2,75 +2,84 @@ package com.mertgolcu.basicnote.ui.login
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
-import com.mertgolcu.basicnote.event.LoginEvent
-import com.mertgolcu.basicnote.event.LoginAndRegisterErrorType
-import com.mertgolcu.basicnote.utils.Result
-import com.mertgolcu.basicnote.extensions.handleErrorJson
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
+import com.mertgolcu.basicnote.event.EventType
+import com.mertgolcu.basicnote.ext.handleHttpException
+import com.mertgolcu.basicnote.utils.*
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 class LoginViewModel @ViewModelInject constructor(
     private val repository: BasicNoteRepository
-) : ViewModel() {
-    private val loginEventChannel = Channel<LoginEvent>()
+) : BaseViewModel() {
+    /*   private val loginEventChannel = Channel<LoginViewEvent>()
 
-    val loginEvent = loginEventChannel.receiveAsFlow()
+       val loginEvent = loginEventChannel.receiveAsFlow()*/
 
 
     val emailText = MutableLiveData<String>("")
     val passwordText = MutableLiveData<String>("")
 
     fun onClickLogin() = viewModelScope.launch {
-        //null or blank check
-        if (emailText.value == null || emailText.value.toString().isBlank()) {
 
-            loginEventChannel.send(LoginEvent.ShowLoginErrorMessage(LoginAndRegisterErrorType.EMAIL_BLANK.name))
-            return@launch
-        }
-        if (passwordText.value == null || passwordText.value.toString().isBlank()) {
-            loginEventChannel.send(LoginEvent.ShowLoginErrorMessage(LoginAndRegisterErrorType.PASSWORD_BLANK.name))
+        showLoading()
+        //null or blank check
+        if (emailText.value == null || emailText.value.toString()
+                .isBlank() || (passwordText.value == null || passwordText.value.toString()
+                .isBlank())
+        ) {
+            showMessage(FILL_REQUIRED_FIELDS, EventType.ERROR)
             return@launch
         }
         // format and length check
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailText.value!!).matches()) {
-            loginEventChannel.send(LoginEvent.ShowLoginErrorMessage(LoginAndRegisterErrorType.EMAIL_FORMAT.name))
+            // loginEventChannel.send(LoginViewEvent.ShowLoginErrorMessage(LoginAndRegisterErrorType.EMAIL_FORMAT.name))
+            showMessage(EMAIL_FORMAT_ERROR, EventType.ERROR)
             return@launch
         }
         when (val response = repository.login(emailText.value!!, passwordText.value!!)) {
             is Result.Success -> {
-                loginEventChannel.send(LoginEvent.LoginSuccess(response.response.message))
+                hideLoading()
+                showMessage(response.response.message, EventType.SUCCESS)
+                navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
+//                loginEventChannel.send(LoginViewEvent.LoginSuccess(response.response.message))
             }
             is Result.Error -> {
-                loginEventChannel.send(
-                    LoginEvent.ShowLoginErrorMessage(
-                        when (response.exception) {
-                            is HttpException -> {
-                                response.exception.response()
-                                    ?.errorBody()
-                                    ?.string()
-                                    ?.handleErrorJson()?.message
-                            }
-                            else -> {
-                                response.exception.message
-                            }
-                        }
-                    )
+                hideLoading()
+                showMessage(
+                    response.exception.handleHttpException(),
+                    EventType.ERROR
                 )
+//                loginEventChannel.send(
+//                    LoginViewEvent.ShowLoginErrorMessage(
+//                        when (response.exception) {
+//                            is HttpException -> {
+//                                response.exception.response()
+//                                    ?.errorBody()
+//                                    ?.string()
+//                                    ?.handleErrorJson()?.message
+//                            }
+//                            else -> {
+//                                response.exception.message
+//                            }
+//                        }
+//                    )
+//                )
             }
         }
     }
 
     fun onClickSignUpNow() = viewModelScope.launch {
-        loginEventChannel.send(
-            LoginEvent.NavigateToSignUpScreen(
+        navigate(
+            LoginFragmentDirections.actionLoginFragmentToSignUpFragment(
                 emailText.value!!,
                 passwordText.value!!
             )
         )
+    }
+
+    fun navigateToForgotPassword() = viewModelScope.launch {
+        navigate(LoginFragmentDirections.actionLoginFragmentToForgotPasswordFragment(emailText.value!!))
     }
 }

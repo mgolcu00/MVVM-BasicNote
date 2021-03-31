@@ -10,11 +10,10 @@ import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.databinding.FragmentNoteBinding
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.event.NoteEvent
-import com.mertgolcu.basicnote.extensions.addChangeStrokeUIListener
-import com.mertgolcu.basicnote.extensions.changeStrokeUI
-import com.mertgolcu.basicnote.extensions.hideKeyboard
-import com.mertgolcu.basicnote.extensions.showSnackBar
+import com.mertgolcu.basicnote.ext.addChangeStrokeUIListener
+import com.mertgolcu.basicnote.ext.changeStrokeUI
+import com.mertgolcu.basicnote.ext.hideKeyboard
+import com.mertgolcu.basicnote.ext.showSnackBar
 import com.mertgolcu.basicnote.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
@@ -56,7 +55,7 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
             viewModel.noteEvent.collect { event ->
                 loadingDialog.dismissDialog()
                 when (event) {
-                    is NoteEvent.ShowMessageOnSuccessOrError -> {
+                    is NoteViewEvent.ShowMessageOnSuccessOrError -> {
                         when (event.code) {
                             EventType.ERROR -> {
                                 binding.editTextNoteTitle.changeStrokeUI()

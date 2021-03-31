@@ -10,9 +10,8 @@ import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.Note
 import com.mertgolcu.basicnote.data.PreferencesManager
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.event.NoteEvent
 import com.mertgolcu.basicnote.utils.Result
-import com.mertgolcu.basicnote.extensions.handleErrorJson
+import com.mertgolcu.basicnote.ext.handleErrorJson
 import com.mertgolcu.basicnote.utils.ADD_NOTE
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
@@ -28,7 +27,7 @@ class NoteViewModel @ViewModelInject constructor(
 
     private val tokenFlow = preferences.tokenPreferencesFlow
 
-    private val noteEventChannel = Channel<NoteEvent>()
+    private val noteEventChannel = Channel<NoteViewEvent>()
     val noteEvent = noteEventChannel.receiveAsFlow()
 
     val note = state.get<Note>("note")
@@ -40,7 +39,7 @@ class NoteViewModel @ViewModelInject constructor(
     fun onClickSave() = viewModelScope.launch {
         if (title.value.isNullOrBlank() || noteText.value.isNullOrBlank()) {
             noteEventChannel.send(
-                NoteEvent.ShowMessageOnSuccessOrError(
+                NoteViewEvent.ShowMessageOnSuccessOrError(
                     "empty",
                     EventType.ERROR
                 )
@@ -58,7 +57,7 @@ class NoteViewModel @ViewModelInject constructor(
             when (val response = repository.createNote(tokenFlow.first().token, newNote)) {
                 is Result.Success -> {
                     noteEventChannel.send(
-                        NoteEvent.ShowMessageOnSuccessOrError(
+                        NoteViewEvent.ShowMessageOnSuccessOrError(
                             response.response.message,
                             EventType.SUCCESS
                         )
@@ -66,7 +65,7 @@ class NoteViewModel @ViewModelInject constructor(
                 }
                 is Result.Error -> {
                     noteEventChannel.send(
-                        NoteEvent.ShowMessageOnSuccessOrError(
+                        NoteViewEvent.ShowMessageOnSuccessOrError(
                             (response.exception as HttpException).response()
                                 ?.errorBody()
                                 ?.string()
@@ -85,7 +84,7 @@ class NoteViewModel @ViewModelInject constructor(
             when (val response = repository.updateNote(tokenFlow.first().token, updatedNote!!)) {
                 is Result.Success -> {
                     noteEventChannel.send(
-                        NoteEvent.ShowMessageOnSuccessOrError(
+                        NoteViewEvent.ShowMessageOnSuccessOrError(
                             response.response.message,
                             EventType.SUCCESS
                         )
@@ -93,7 +92,7 @@ class NoteViewModel @ViewModelInject constructor(
                 }
                 is Result.Error -> {
                     noteEventChannel.send(
-                        NoteEvent.ShowMessageOnSuccessOrError(
+                        NoteViewEvent.ShowMessageOnSuccessOrError(
                             (response.exception as HttpException).response()
                                 ?.errorBody()
                                 ?.string()

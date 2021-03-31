@@ -10,9 +10,8 @@ import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.PreferencesManager
 import com.mertgolcu.basicnote.data.User
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.event.ProfileEvent
 import com.mertgolcu.basicnote.utils.Result
-import com.mertgolcu.basicnote.extensions.handleErrorJson
+import com.mertgolcu.basicnote.ext.handleErrorJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -25,7 +24,7 @@ class ProfileViewModel @ViewModelInject constructor(
     @Assisted state: SavedStateHandle
 ) : ViewModel() {
 
-    private val profileEventChannel = Channel<ProfileEvent>()
+    private val profileEventChannel = Channel<ProfileViewEvent>()
     val profileEvent = profileEventChannel.receiveAsFlow()
 
     private val tokenFlow = preferences.tokenPreferencesFlow
@@ -40,7 +39,7 @@ class ProfileViewModel @ViewModelInject constructor(
 
         if (fullNameText.value.isNullOrBlank() || emailText.value.isNullOrBlank()) {
             profileEventChannel.send(
-                ProfileEvent.ShowMessageOnSuccessOrError(
+                ProfileViewEvent.ShowMessageOnSuccessOrError(
                     "empty",
                     EventType.ERROR
                 )
@@ -60,7 +59,7 @@ class ProfileViewModel @ViewModelInject constructor(
         )) {
             is Result.Success -> {
                 profileEventChannel.send(
-                    ProfileEvent.ShowMessageOnSuccessOrError(
+                    ProfileViewEvent.ShowMessageOnSuccessOrError(
                         response.response.message,
                         EventType.SUCCESS
                     )
@@ -68,7 +67,7 @@ class ProfileViewModel @ViewModelInject constructor(
             }
             is Result.Error -> {
                 profileEventChannel.send(
-                    ProfileEvent.ShowMessageOnSuccessOrError(
+                    ProfileViewEvent.ShowMessageOnSuccessOrError(
                         (response.exception as HttpException)
                             .response()
                             ?.errorBody()
@@ -84,7 +83,7 @@ class ProfileViewModel @ViewModelInject constructor(
 
     fun onSignOutClicked() = viewModelScope.launch {
         preferences.updateToken(" ")
-        profileEventChannel.send(ProfileEvent.NavigateLoginForSignOut)
+        profileEventChannel.send(ProfileViewEvent.NavigateLoginForSignOut)
     }
 
 }

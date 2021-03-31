@@ -1,17 +1,15 @@
 package com.mertgolcu.basicnote.ui.changepassword
 
-import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.PreferencesManager
-import com.mertgolcu.basicnote.event.BaseEvent
+import com.mertgolcu.basicnote.core.BaseViewEvent
 import com.mertgolcu.basicnote.event.EventType
 import com.mertgolcu.basicnote.utils.Result
-import com.mertgolcu.basicnote.extensions.handleErrorJson
+import com.mertgolcu.basicnote.ext.handleErrorJson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -23,7 +21,7 @@ class ChangePasswordViewModel @ViewModelInject constructor(
     private val preferences: PreferencesManager
 ) : ViewModel() {
 
-    private val changePasswordEventChannel = Channel<BaseEvent>()
+    private val changePasswordEventChannel = Channel<BaseViewEvent>()
     val changePasswordEvent = changePasswordEventChannel.receiveAsFlow()
 
     val password = MutableLiveData<String>("")
@@ -37,7 +35,7 @@ class ChangePasswordViewModel @ViewModelInject constructor(
         if (password.value.isNullOrBlank() || newPassword.value.isNullOrBlank() || retypeNewPassword.value.isNullOrBlank()) {
             // send error
             changePasswordEventChannel.send(
-                BaseEvent.ShowErrorOrSuccessMessage(
+                BaseViewEvent.ShowErrorOrSuccessMessage(
                     "empty",
                     EventType.ERROR
                 )
@@ -52,14 +50,14 @@ class ChangePasswordViewModel @ViewModelInject constructor(
         )) {
             is Result.Success -> {
                 changePasswordEventChannel.send(
-                    BaseEvent.ShowErrorOrSuccessMessage(
+                    BaseViewEvent.ShowErrorOrSuccessMessage(
                         response.response.message, EventType.SUCCESS
                     )
                 )
             }
             is Result.Error -> {
                 changePasswordEventChannel.send(
-                    BaseEvent.ShowErrorOrSuccessMessage(
+                    BaseViewEvent.ShowErrorOrSuccessMessage(
                         (response.exception as HttpException).response()
                             ?.errorBody()
                             ?.string()
