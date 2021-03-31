@@ -2,27 +2,31 @@ package com.mertgolcu.basicnote.ui.home
 
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.*
-import androidx.paging.*
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import androidx.paging.filter
+import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.Note
 import com.mertgolcu.basicnote.data.PreferencesManager
-
-import com.mertgolcu.basicnote.utils.Result
+import com.mertgolcu.basicnote.event.EventType
 import com.mertgolcu.basicnote.ext.handleErrorJson
-import com.mertgolcu.basicnote.utils.ADD_NOTE
-import com.mertgolcu.basicnote.utils.EDIT_NOTE
-import com.mertgolcu.basicnote.utils.SHOW_NOTE
+import com.mertgolcu.basicnote.ext.handleHttpException
+import com.mertgolcu.basicnote.utils.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
+import java.util.*
 
 class HomeViewModel @ViewModelInject constructor(
     private val repository: BasicNoteRepository,
     private val preferences: PreferencesManager,
     @Assisted state: SavedStateHandle
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val homeEventChannel = Channel<HomeViewEvent>()
     val homeEvent = homeEventChannel.receiveAsFlow()
@@ -35,12 +39,13 @@ class HomeViewModel @ViewModelInject constructor(
         }.flatMapLatest { (query, token) ->
             repository.getMyNotes(token.token, query).map {
                 it.filter { note ->
-                    note.note.toLowerCase().contains(query.toLowerCase())
+                    note.note.toLowerCase(Locale.ROOT)
+                        .contains(query.toLowerCase(Locale.ROOT))
+                            || note.title.toLowerCase(Locale.ROOT)
+                        .contains(query.toLowerCase(Locale.ROOT))
                 }
             }.cachedIn(viewModelScope)
         }
-
-
     val notes = notesFlow.asLiveData()
 
     fun searchNotes(query: String) = viewModelScope.launch {
@@ -48,43 +53,46 @@ class HomeViewModel @ViewModelInject constructor(
     }
 
     fun deleteNote(note: Note) = viewModelScope.launch {
-        homeEventChannel.send(HomeViewEvent.NavigateToDeleteNoteScreen(note))
+        navigate(
+            HomeFragmentDirections
+                .actionHomeFragmentToDeleteNoteDialog(note)
+        )
     }
 
     fun onClickEdit(note: Note) = viewModelScope.launch {
-        homeEventChannel.send(HomeViewEvent.NavigateNote(note, EDIT_NOTE))
+        navigate(
+            HomeFragmentDirections
+                .actionHomeFragmentToNoteFragment(note, EDIT_NOTE)
+        )
     }
 
     fun onClickAdd() = viewModelScope.launch {
-        homeEventChannel.send(HomeViewEvent.NavigateNote(null, ADD_NOTE))
+        navigate(
+            HomeFragmentDirections
+                .actionHomeFragmentToNoteFragment(null, ADD_NOTE)
+        )
     }
 
     fun onClickNote(note: Note) = viewModelScope.launch {
-        homeEventChannel.send(HomeViewEvent.NavigateNote(note, SHOW_NOTE))
+        navigate(
+            HomeFragmentDirections
+                .actionHomeFragmentToNoteFragment(note, SHOW_NOTE)
+        )
     }
 
     fun goProfileFragment() = viewModelScope.launch {
         when (val response = repository.getMe(tokenFlow.first().token)) {
-            is Result.Success -> {
-                homeEventChannel.send(HomeViewEvent.NavigateToProfile(response.response.data, ""))
-            }
-            is Result.Error -> {
-                homeEventChannel.send(
-                    HomeViewEvent.NavigateToProfile(
-                        null, (response.exception as HttpException)
-                            .response()
-                            ?.errorBody()
-                            ?.string()
-                            ?.handleErrorJson()?.message
-                    )
+            is Result.Success ->
+                navigate(
+                    HomeFragmentDirections
+                        .actionHomeFragmentToProfileFragment(response.response.data)
                 )
-            }
+
+            is Result.Error ->
+                showMessage(response.exception.handleHttpException(), EventType.ERROR)
+
         }
 
     }
 
-    companion object {
-        private const val CURRENT_QUERY = "current_query"
-        private const val DEFAULT_QUERY = ""
-    }
 }

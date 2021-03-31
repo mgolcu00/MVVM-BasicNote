@@ -4,19 +4,14 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.ForgotPasswordFragmentBinding
-import com.mertgolcu.basicnote.event.LoginAndRegisterErrorType
 import com.mertgolcu.basicnote.ext.addChangeStrokeUIListener
 import com.mertgolcu.basicnote.ext.changeStrokeUI
 import com.mertgolcu.basicnote.ext.hideKeyboard
-import com.mertgolcu.basicnote.ext.showSnackBar
-import com.mertgolcu.basicnote.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 

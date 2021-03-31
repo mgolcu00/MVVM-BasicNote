@@ -7,5 +7,4 @@ sealed class HomeViewEvent {
     data class NavigateToProfile(val user: User?, val msg: String?) : HomeViewEvent()
     data class NavigateNote(val note: Note?, val mode: String) : HomeViewEvent()
     data class NavigateToDeleteNoteScreen(val note: Note) : HomeViewEvent()
-  //  data class ListSearched(val query: String?) : HomeEvent()
 }

@@ -23,7 +23,7 @@ class LoginViewModel @ViewModelInject constructor(
 
     fun onClickLogin() = viewModelScope.launch {
 
-        showLoading()
+
         //null or blank check
         if (emailText.value == null || emailText.value.toString()
                 .isBlank() || (passwordText.value == null || passwordText.value.toString()
@@ -38,6 +38,7 @@ class LoginViewModel @ViewModelInject constructor(
             showMessage(EMAIL_FORMAT_ERROR, EventType.ERROR)
             return@launch
         }
+        showLoading()
         when (val response = repository.login(emailText.value!!, passwordText.value!!)) {
             is Result.Success -> {
                 hideLoading()

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mertgolcu.basicnote.R
+import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.data.Note
 import com.mertgolcu.basicnote.databinding.FragmentHomeBinding
 import com.mertgolcu.basicnote.ext.hideKeyboard
@@ -30,15 +31,15 @@ import kotlinx.coroutines.flow.collect
 
 
 @AndroidEntryPoint
-class HomeFragment : Fragment(R.layout.fragment_home), NoteAdapter.OnItemClickListener {
+class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(R.layout.fragment_home),
+    NoteAdapter.OnItemClickListener {
 
-    private val viewModel: HomeViewModel by viewModels()
+    override val viewModel: HomeViewModel by viewModels()
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentHomeBinding.bind(view)
         val adapter = NoteAdapter(this)
         binding.apply {
 
@@ -155,38 +156,6 @@ class HomeFragment : Fragment(R.layout.fragment_home), NoteAdapter.OnItemClickLi
 
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            viewModel.homeEvent.collect { event ->
-                when (event) {
-                    is HomeViewEvent.NavigateToDeleteNoteScreen -> {
-                        val action =
-                            HomeFragmentDirections
-                                .actionHomeFragmentToDeleteNoteDialog(event.note)
-                        findNavController().navigate(action)
-                    }
-                    is HomeViewEvent.NavigateToProfile ->
-                        if (event.user != null) {
-                            val action =
-                                HomeFragmentDirections
-                                    .actionHomeFragmentToProfileFragment(event.user)
-                            findNavController().navigate(action)
-                        } else {
-                            if (event.msg != null) {
-                                event.msg.showSnackBar(requireView())
-                            }
-                        }
-
-                    is HomeViewEvent.NavigateNote -> {
-                        val action = HomeFragmentDirections.actionHomeFragmentToNoteFragment(
-                            event.note,
-                            event.mode
-                        )
-                        findNavController().navigate(action)
-                    }
-                }
-            }
-        }
-
         findNavController().currentBackStackEntry?.savedStateHandle
             ?.getLiveData<String>("result")
             ?.observe(viewLifecycleOwner) {
@@ -201,28 +170,17 @@ class HomeFragment : Fragment(R.layout.fragment_home), NoteAdapter.OnItemClickLi
     }
 
     override fun onItemClick(note: Note) {
-        // on note clicked
         viewModel.onClickNote(note)
-
     }
 
     private fun onSearchUI(binding: FragmentHomeBinding, isSearch: Boolean) {
-
-        binding.apply {
-            titleBarHome.apply {
-                textViewSearchCancel.isVisible = isSearch
-                imageButtonProfile.isVisible = !isSearch
-                if (isSearch) {
-                    editTextSearchBar.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                        endToStart = textViewSearchCancel.id
-                    }
-                } else {
-                    editTextSearchBar.updateLayoutParams<ConstraintLayout.LayoutParams> {
-                        endToStart = imageButtonProfile.id
-                    }
-                }
-
-
+        binding.titleBarHome.apply {
+            textViewSearchCancel.isVisible = isSearch
+            imageButtonProfile.isVisible = !isSearch
+            val id = if (isSearch) textViewSearchCancel.id else imageButtonProfile.id
+            editTextSearchBar.updateLayoutParams<ConstraintLayout.LayoutParams>
+            {
+                endToStart = id
             }
         }
     }

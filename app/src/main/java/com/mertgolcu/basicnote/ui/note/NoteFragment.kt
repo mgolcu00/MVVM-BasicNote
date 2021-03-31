@@ -8,41 +8,35 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
+import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.FragmentNoteBinding
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.ext.addChangeStrokeUIListener
-import com.mertgolcu.basicnote.ext.changeStrokeUI
-import com.mertgolcu.basicnote.ext.hideKeyboard
-import com.mertgolcu.basicnote.ext.showSnackBar
+import com.mertgolcu.basicnote.ext.*
 import com.mertgolcu.basicnote.utils.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
-class NoteFragment : Fragment(R.layout.fragment_note) {
+class NoteFragment : BaseFragment<FragmentNoteBinding, NoteViewModel>(R.layout.fragment_note) {
 
-    private val viewModel: NoteViewModel by viewModels()
+    override val viewModel: NoteViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val binding = FragmentNoteBinding.bind(view)
-        val loadingDialog = LoadingDialog(requireContext())
         binding.apply {
             modelView = viewModel
 
             modeUI(this, viewModel.mode!!)
-            editTextNoteTitle.addChangeStrokeUIListener()
-            editTextNoteText.addChangeStrokeUIListener()
+            root.addAllEditTextStrokeUIListener()
             customTitleBar.imageButtonBack.setOnClickListener {
                 requireView().hideKeyboard()
                 editTextNoteTitle.clearFocus()
                 editTextNoteText.clearFocus()
-                findNavController().popBackStack()
+                viewModel.popBackStack()
             }
 
             buttonSave.setOnClickListener {
-                loadingDialog.showDialog()
                 requireView().hideKeyboard()
                 editTextNoteTitle.clearFocus()
                 editTextNoteText.clearFocus()
@@ -51,31 +45,6 @@ class NoteFragment : Fragment(R.layout.fragment_note) {
 
         }
 
-        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            viewModel.noteEvent.collect { event ->
-                loadingDialog.dismissDialog()
-                when (event) {
-                    is NoteViewEvent.ShowMessageOnSuccessOrError -> {
-                        when (event.code) {
-                            EventType.ERROR -> {
-                                binding.editTextNoteTitle.changeStrokeUI()
-                                binding.editTextNoteText.changeStrokeUI()
-                                if (event.msg == "empty") getString(R.string.fill_required_fields).showSnackBar(
-                                    requireView()
-                                )
-                                else
-                                    event.msg.showSnackBar(requireView())
-
-                            }
-                            EventType.SUCCESS -> {
-                                event.msg.showSnackBar(requireView(), R.color.success_green)
-                                findNavController().popBackStack()
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     private fun modeUI(binding: FragmentNoteBinding, mode: String) {

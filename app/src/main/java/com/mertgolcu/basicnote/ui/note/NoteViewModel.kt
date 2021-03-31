@@ -6,13 +6,16 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.Note
 import com.mertgolcu.basicnote.data.PreferencesManager
 import com.mertgolcu.basicnote.event.EventType
 import com.mertgolcu.basicnote.utils.Result
 import com.mertgolcu.basicnote.ext.handleErrorJson
+import com.mertgolcu.basicnote.ext.handleHttpException
 import com.mertgolcu.basicnote.utils.ADD_NOTE
+import com.mertgolcu.basicnote.utils.FILL_REQUIRED_FIELDS
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -23,12 +26,10 @@ class NoteViewModel @ViewModelInject constructor(
     private val repository: BasicNoteRepository,
     @Assisted val state: SavedStateHandle,
     private val preferences: PreferencesManager
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val tokenFlow = preferences.tokenPreferencesFlow
 
-    private val noteEventChannel = Channel<NoteViewEvent>()
-    val noteEvent = noteEventChannel.receiveAsFlow()
 
     val note = state.get<Note>("note")
     val mode = state.get<String>("mode")
@@ -38,72 +39,50 @@ class NoteViewModel @ViewModelInject constructor(
 
     fun onClickSave() = viewModelScope.launch {
         if (title.value.isNullOrBlank() || noteText.value.isNullOrBlank()) {
-            noteEventChannel.send(
-                NoteViewEvent.ShowMessageOnSuccessOrError(
-                    "empty",
-                    EventType.ERROR
-                )
-            )
+            showMessage(FILL_REQUIRED_FIELDS, EventType.ERROR)
             return@launch
         }
         // repository request
-        if (mode == ADD_NOTE) {
+        showLoading()
+        when (mode) {
+            ADD_NOTE -> {
+                val newNote = Note(
+                    id = 0,
+                    title = title.value!!,
+                    note = noteText.value!!
+                )
+                when (val response = repository.createNote(tokenFlow.first().token, newNote)) {
+                    is Result.Success -> {
+                        showMessage(response.response.message, EventType.SUCCESS)
+                        hideLoading()
+                    }
 
-            val newNote = Note(
-                id = 0,
-                title = title.value!!,
-                note = noteText.value!!
-            )
-            when (val response = repository.createNote(tokenFlow.first().token, newNote)) {
-                is Result.Success -> {
-                    noteEventChannel.send(
-                        NoteViewEvent.ShowMessageOnSuccessOrError(
-                            response.response.message,
-                            EventType.SUCCESS
-                        )
-                    )
-                }
-                is Result.Error -> {
-                    noteEventChannel.send(
-                        NoteViewEvent.ShowMessageOnSuccessOrError(
-                            (response.exception as HttpException).response()
-                                ?.errorBody()
-                                ?.string()
-                                ?.handleErrorJson()
-                                ?.message!!,
-                            EventType.ERROR
-                        )
-                    )
+                    is Result.Error -> {
+                        showMessage(response.exception.handleHttpException(), EventType.ERROR)
+                        hideLoading()
+                    }
+
                 }
             }
-        } else {
-            val updatedNote = note?.copy(
-                title = title.value!!,
-                note = noteText.value!!
-            )
-            when (val response = repository.updateNote(tokenFlow.first().token, updatedNote!!)) {
-                is Result.Success -> {
-                    noteEventChannel.send(
-                        NoteViewEvent.ShowMessageOnSuccessOrError(
-                            response.response.message,
-                            EventType.SUCCESS
-                        )
-                    )
-                }
-                is Result.Error -> {
-                    noteEventChannel.send(
-                        NoteViewEvent.ShowMessageOnSuccessOrError(
-                            (response.exception as HttpException).response()
-                                ?.errorBody()
-                                ?.string()
-                                ?.handleErrorJson()
-                                ?.message!!,
-                            EventType.ERROR
-                        )
-                    )
+            else -> {
+                val updatedNote = note?.copy(
+                    title = title.value!!,
+                    note = noteText.value!!
+                )
+                when (val response =
+                    repository.updateNote(tokenFlow.first().token, updatedNote!!)) {
+                    is Result.Success -> {
+                        showMessage(response.response.message, EventType.SUCCESS)
+                        hideLoading()
+                        popBackStack()
+                    }
+
+                    is Result.Error -> {
+                        showMessage(response.exception.handleHttpException(), EventType.ERROR)
+                        hideLoading()
+                    }
                 }
             }
-
         }
     }
 }

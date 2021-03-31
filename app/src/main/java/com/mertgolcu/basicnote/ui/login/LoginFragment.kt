@@ -3,19 +3,13 @@ package com.mertgolcu.basicnote.ui.login
 import android.os.Bundle
 import android.text.method.LinkMovementMethod
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.FragmentLoginBinding
-import com.mertgolcu.basicnote.event.LoginAndRegisterErrorType
 import com.mertgolcu.basicnote.ext.*
 import com.mertgolcu.basicnote.utils.*
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlin.reflect.KClass
 
 @AndroidEntryPoint
 class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(R.layout.fragment_login) {
@@ -36,18 +30,15 @@ class LoginFragment : BaseFragment<FragmentLoginBinding, LoginViewModel>(R.layou
             modelView = viewModel
 
 
-
+            root.addAllEditTextStrokeUIListener()
             buttonLogin.setOnClickListener {
                 requireView().hideKeyboard()
                 editTextEmail.clearFocus()
                 editTextPassword.clearFocus()
-                editTextPassword.changeStrokeUI()
-                editTextEmail.changeStrokeUI()
+                root.controlAllEditTextStrokeUI()
                 viewModel.onClickLogin()
             }
 
-            editTextEmail.addChangeStrokeUIListener()
-            editTextPassword.addChangeStrokeUIListener()
             textViewSignUpNow.movementMethod = LinkMovementMethod.getInstance()
             textViewSignUpNow.text = getString(R.string.register_now).textSpanColor {
                 viewModel.onClickSignUpNow()

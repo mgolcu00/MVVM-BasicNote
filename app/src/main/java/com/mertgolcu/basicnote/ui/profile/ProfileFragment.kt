@@ -7,81 +7,47 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
+import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.FragmentProfileBinding
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.ext.addChangeStrokeUIListener
-import com.mertgolcu.basicnote.ext.changeStrokeUI
-import com.mertgolcu.basicnote.ext.hideKeyboard
-import com.mertgolcu.basicnote.ext.showSnackBar
+import com.mertgolcu.basicnote.ext.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
-class ProfileFragment : Fragment(R.layout.fragment_profile) {
+class ProfileFragment :
+    BaseFragment<FragmentProfileBinding, ProfileViewModel>(R.layout.fragment_profile) {
 
-    private val viewModel: ProfileViewModel by viewModels()
+    override val viewModel: ProfileViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-        val binding = FragmentProfileBinding.bind(view)
-
         binding.apply {
             modelView = viewModel
-
+            root.addAllEditTextStrokeUIListener()
             customTitleBar.textViewTitle.text = getString(R.string.profile)
             customTitleBar.imageButtonBack.setOnClickListener {
-                findNavController().popBackStack()
+                viewModel.popBackStack()
             }
-            editTextEmail.addChangeStrokeUIListener()
-            editTextFullName.addChangeStrokeUIListener()
             buttonSave.setOnClickListener {
                 viewModel.onSaveButtonClick()
                 requireView().hideKeyboard()
                 editTextEmail.clearFocus()
                 editTextFullName.clearFocus()
+                root.controlAllEditTextStrokeUI()
             }
             textViewSignOut.setOnClickListener {
                 viewModel.onSignOutClicked()
                 requireView().hideKeyboard()
             }
             textViewChangePassword.setOnClickListener {
-                val action =
-                    ProfileFragmentDirections.actionProfileFragmentToChangePasswordFragment()
-                findNavController().navigate(action)
+                viewModel.onChangePasswordClick()
+                requireView().hideKeyboard()
             }
 
         }
-        viewLifecycleOwner.lifecycleScope.launchWhenCreated {
-            viewModel.profileEvent.collect { event ->
-                when (event) {
-                    is ProfileViewEvent.ShowMessageOnSuccessOrError -> {
-                        when (event.code) {
-                            EventType.ERROR -> {
-                                if (event.msg == "empty") {
-                                    binding.editTextEmail.changeStrokeUI()
-                                    binding.editTextFullName.changeStrokeUI()
-                                    getString(R.string.fill_required_fields).showSnackBar(
-                                        requireView()
-                                    )
-                                } else
-                                    event.msg.showSnackBar(requireView())
-                            }
-                            EventType.SUCCESS -> {
-                                event.msg.showSnackBar(requireView(), R.color.success_green)
-                            }
 
-                        }
-                    }
-                    ProfileViewEvent.NavigateLoginForSignOut -> {
-                        val action =
-                            ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
-                        findNavController().navigate(action)
-                    }
-                }
-            }
-        }
     }
 }
 
