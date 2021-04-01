@@ -5,18 +5,15 @@ import com.mertgolcu.basicnote.api.BasicNoteApi
 import com.mertgolcu.basicnote.utils.NOTE_STARTING_PAGE_INDEX
 import retrofit2.HttpException
 import java.io.IOException
-import java.util.*
 
 
 class NotePagingSource(
-    private val api: BasicNoteApi,
-    private val token: String,
-    private val query: String
+    private val api: BasicNoteApi
 ) : PagingSource<Int, Note>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Note> {
         val position = params.key ?: NOTE_STARTING_PAGE_INDEX
         return try {
-            val response = api.getMyNotes(position, "Bearer $token")
+            val response = api.getMyNotes(position)
             val notes = response.data.data
             LoadResult.Page(
                 data = notes,

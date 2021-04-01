@@ -7,7 +7,10 @@ import androidx.fragment.app.viewModels
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.FragmentSignUpBinding
-import com.mertgolcu.basicnote.ext.*
+import com.mertgolcu.basicnote.ext.addAllEditTextStrokeUIListener
+import com.mertgolcu.basicnote.ext.controlAllEditTextStrokeUI
+import com.mertgolcu.basicnote.ext.hideKeyboard
+import com.mertgolcu.basicnote.ext.textSpanColor
 import dagger.hilt.android.AndroidEntryPoint
 
 

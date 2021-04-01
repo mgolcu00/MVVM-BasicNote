@@ -18,7 +18,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_sort"
-        app:tint="@color/text_color_dark" />
+        app:tint="@color/text_color_dark"
+        android:contentDescription="TODO" />
 
     <EditText
         android:id="@+id/edit_Text_search_bar"

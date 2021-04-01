@@ -2,36 +2,64 @@ package com.mertgolcu.basicnote.data
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.mertgolcu.basicnote.api.BaseResponse
 import com.mertgolcu.basicnote.api.BasicNoteApi
 import com.mertgolcu.basicnote.api.LoginResponseData
 import com.mertgolcu.basicnote.utils.Result
+import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
 import java.net.SocketException
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
-interface IRepository {
+interface BasicNoteRepository {
     suspend fun login(email: String, password: String): Result<BaseResponse<LoginResponseData>>
+
+    suspend fun register(
+        fullName: String,
+        email: String,
+        password: String
+    ): Result<BaseResponse<LoginResponseData>>
+
+    suspend fun forgotPassword(email: String): Result<BaseResponse<Any>>
+
+    fun getMyNotes(): Flow<PagingData<Note>>
+
+    suspend fun deleteNote(id: Int): Result<BaseResponse<Any>>
+
+    suspend fun getMe(): Result<BaseResponse<User>>
+
+    suspend fun updateUser(fullName: String, email: String): Result<BaseResponse<Any>>
+
+    suspend fun updateUserPassword(
+        password: String,
+        newPassword: String,
+        newPasswordConfirmation: String
+    ): Result<BaseResponse<Any>>
+
+    suspend fun createNote(title: String, note: String): Result<BaseResponse<Any>>
+
+    suspend fun updateNote(id: Int, title: String, note: String): Result<BaseResponse<Any>>
 }
-//single<IRepository> {BasicNoteRepository(get(),get())}
-//viewModel (val repo : IRepositroy)
-//repo.login(...,...,...)
+
 
 @Singleton
-class BasicNoteRepository @Inject constructor(
+class DefaultBasicNoteRepository @Inject constructor(
     private val preferencesManager: PreferencesManager,
     private val basicNoteApi: BasicNoteApi
-) : IRepository {
-
+) : BasicNoteRepository {
 
     override suspend fun login(
         email: String,
         password: String
     ): Result<BaseResponse<LoginResponseData>> {
         return try {
-            val response = basicNoteApi.login(email, password)
+            val response = basicNoteApi.login(
+                email = email,
+                password = password
+            )
             preferencesManager.updateToken(response.data.access_token)
             Result.Success(response)
         } catch (e: HttpException) {
@@ -41,13 +69,17 @@ class BasicNoteRepository @Inject constructor(
         }
     }
 
-    suspend fun register(
+    override suspend fun register(
         fullName: String,
         email: String,
         password: String
     ): Result<BaseResponse<LoginResponseData>> {
         return try {
-            val response = basicNoteApi.register(fullName, email, password)
+            val response = basicNoteApi.register(
+                full_name = fullName,
+                email = email,
+                password = password
+            )
             //token load
             preferencesManager.updateToken(response.data.access_token)
             Result.Success(response)
@@ -56,52 +88,12 @@ class BasicNoteRepository @Inject constructor(
         }
     }
 
-    suspend fun forgotPassword(
+    override suspend fun forgotPassword(
         email: String
     ): Result<BaseResponse<Any>> {
         return try {
-            val response = basicNoteApi.forgotPassword(email)
-            Result.Success(response)
-        } catch (e: HttpException) {
-            Result.Error(e)
-        }
-    }
-
-
-    fun getMyNotes(token: String, query: String) = Pager(
-        config = PagingConfig(
-            pageSize = 15,
-            maxSize = 100,
-            enablePlaceholders = false
-
-        ),
-        pagingSourceFactory = { NotePagingSource(basicNoteApi, token, query) }
-    ).flow
-
-    suspend fun deleteNote(note: Note, token: String): Result<BaseResponse<Any>> {
-        return try {
-            val response = basicNoteApi.deleteNote(note.id, "Bearer $token")
-            Result.Success(response)
-        } catch (e: HttpException) {
-            Result.Error(e)
-        }
-    }
-
-    suspend fun getMe(token: String): Result<BaseResponse<User>> {
-        return try {
-            val response = basicNoteApi.getMe("Bearer $token")
-            Result.Success(response)
-        } catch (e: HttpException) {
-            Result.Error(e)
-        }
-    }
-
-    suspend fun updateUser(token: String, user: User): Result<BaseResponse<User>> {
-        return try {
-            val response = basicNoteApi.updateUser(
-                token = "Bearer $token",
-                fullName = user.fullName,
-                email = user.email
+            val response = basicNoteApi.forgotPassword(
+                email = email
             )
             Result.Success(response)
         } catch (e: HttpException) {
@@ -109,15 +101,56 @@ class BasicNoteRepository @Inject constructor(
         }
     }
 
-    suspend fun updateUserPassword(
-        token: String,
+
+    override fun getMyNotes() = Pager(
+        config = PagingConfig(
+            pageSize = 15,
+            maxSize = 100,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = { NotePagingSource(basicNoteApi) }
+    ).flow
+
+    override suspend fun deleteNote(id: Int): Result<BaseResponse<Any>> {
+        return try {
+            val response = basicNoteApi.deleteNote(
+                noteId = id
+            )
+            Result.Success(response)
+        } catch (e: HttpException) {
+            Result.Error(e)
+        }
+    }
+
+
+    override suspend fun getMe(): Result<BaseResponse<User>> {
+        return try {
+            val response = basicNoteApi.getMe()
+            Result.Success(response)
+        } catch (e: HttpException) {
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateUser(fullName: String, email: String): Result<BaseResponse<Any>> {
+        return try {
+            val response = basicNoteApi.updateUser(
+                fullName = fullName,
+                email = email
+            )
+            Result.Success(response)
+        } catch (e: HttpException) {
+            Result.Error(e)
+        }
+    }
+
+    override suspend fun updateUserPassword(
         password: String,
         newPassword: String,
         newPasswordConfirmation: String
     ): Result<BaseResponse<Any>> {
         return try {
             val response = basicNoteApi.updateUserPassword(
-                token = "Bearer $token",
                 password = password,
                 newPassword = newPassword,
                 newPasswordConfirmation = newPasswordConfirmation
@@ -128,12 +161,11 @@ class BasicNoteRepository @Inject constructor(
         }
     }
 
-    suspend fun createNote(token: String, note: Note): Result<BaseResponse<Note>> {
+    override suspend fun createNote(title: String, note: String): Result<BaseResponse<Any>> {
         return try {
             val response = basicNoteApi.createNote(
-                token = "Bearer $token",
-                title = note.title,
-                note = note.note
+                title = title,
+                note = note
             )
             Result.Success(response)
         } catch (e: HttpException) {
@@ -141,13 +173,16 @@ class BasicNoteRepository @Inject constructor(
         }
     }
 
-    suspend fun updateNote(token: String, note: Note): Result<BaseResponse<Note>> {
+    override suspend fun updateNote(
+        id: Int,
+        title: String,
+        note: String
+    ): Result<BaseResponse<Any>> {
         return try {
             val response = basicNoteApi.updateNote(
-                noteId = note.id,
-                token = "Bearer $token",
-                title = note.title,
-                note = note.note
+                noteId = id,
+                title = title,
+                note = note
             )
             Result.Success(response)
         } catch (e: HttpException) {

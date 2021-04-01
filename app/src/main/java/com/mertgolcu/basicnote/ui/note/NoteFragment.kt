@@ -3,18 +3,14 @@ package com.mertgolcu.basicnote.ui.note
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.FragmentNoteBinding
-import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.ext.*
-import com.mertgolcu.basicnote.utils.*
+import com.mertgolcu.basicnote.ext.addAllEditTextStrokeUIListener
+import com.mertgolcu.basicnote.ext.hideKeyboard
+import com.mertgolcu.basicnote.utils.SHOW_NOTE
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class NoteFragment : BaseFragment<FragmentNoteBinding, NoteViewModel>(R.layout.fragment_note) {

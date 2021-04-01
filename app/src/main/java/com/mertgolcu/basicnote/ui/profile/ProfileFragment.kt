@@ -2,17 +2,14 @@ package com.mertgolcu.basicnote.ui.profile
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import com.mertgolcu.basicnote.R
 import com.mertgolcu.basicnote.core.BaseFragment
 import com.mertgolcu.basicnote.databinding.FragmentProfileBinding
-import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.ext.*
+import com.mertgolcu.basicnote.ext.addAllEditTextStrokeUIListener
+import com.mertgolcu.basicnote.ext.controlAllEditTextStrokeUI
+import com.mertgolcu.basicnote.ext.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 
 @AndroidEntryPoint
 class ProfileFragment :

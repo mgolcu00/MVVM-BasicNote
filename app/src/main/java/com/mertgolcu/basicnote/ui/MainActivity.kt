@@ -1,9 +1,6 @@
 package com.mertgolcu.basicnote.ui
 
-import android.os.Build
 import android.os.Bundle
-import android.view.View
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -21,7 +18,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        //supportActionBar?.show()
         supportActionBar?.hide()
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment

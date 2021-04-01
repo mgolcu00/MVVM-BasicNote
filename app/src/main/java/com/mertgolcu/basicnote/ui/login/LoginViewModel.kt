@@ -13,13 +13,9 @@ import kotlinx.coroutines.launch
 class LoginViewModel @ViewModelInject constructor(
     private val repository: BasicNoteRepository
 ) : BaseViewModel() {
-    /*   private val loginEventChannel = Channel<LoginViewEvent>()
 
-       val loginEvent = loginEventChannel.receiveAsFlow()*/
-
-
-    val emailText = MutableLiveData<String>("")
-    val passwordText = MutableLiveData<String>("")
+    val emailText = MutableLiveData("")
+    val passwordText = MutableLiveData("")
 
     fun onClickLogin() = viewModelScope.launch {
 
@@ -34,7 +30,6 @@ class LoginViewModel @ViewModelInject constructor(
         }
         // format and length check
         if (!android.util.Patterns.EMAIL_ADDRESS.matcher(emailText.value!!).matches()) {
-            // loginEventChannel.send(LoginViewEvent.ShowLoginErrorMessage(LoginAndRegisterErrorType.EMAIL_FORMAT.name))
             showMessage(EMAIL_FORMAT_ERROR, EventType.ERROR)
             return@launch
         }
@@ -44,7 +39,6 @@ class LoginViewModel @ViewModelInject constructor(
                 hideLoading()
                 showMessage(response.response.message, EventType.SUCCESS)
                 navigate(LoginFragmentDirections.actionLoginFragmentToHomeFragment())
-//                loginEventChannel.send(LoginViewEvent.LoginSuccess(response.response.message))
             }
             is Result.Error -> {
                 hideLoading()
@@ -52,21 +46,7 @@ class LoginViewModel @ViewModelInject constructor(
                     response.exception.handleHttpException(),
                     EventType.ERROR
                 )
-//                loginEventChannel.send(
-//                    LoginViewEvent.ShowLoginErrorMessage(
-//                        when (response.exception) {
-//                            is HttpException -> {
-//                                response.exception.response()
-//                                    ?.errorBody()
-//                                    ?.string()
-//                                    ?.handleErrorJson()?.message
-//                            }
-//                            else -> {
-//                                response.exception.message
-//                            }
-//                        }
-//                    )
-//                )
+
             }
         }
     }
@@ -81,6 +61,9 @@ class LoginViewModel @ViewModelInject constructor(
     }
 
     fun navigateToForgotPassword() = viewModelScope.launch {
-        navigate(LoginFragmentDirections.actionLoginFragmentToForgotPasswordFragment(emailText.value!!))
+        navigate(
+            LoginFragmentDirections
+                .actionLoginFragmentToForgotPasswordFragment(emailText.value!!)
+        )
     }
 }

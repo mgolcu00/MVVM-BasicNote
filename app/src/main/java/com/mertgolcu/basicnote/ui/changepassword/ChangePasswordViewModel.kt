@@ -5,24 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
-import com.mertgolcu.basicnote.data.PreferencesManager
 import com.mertgolcu.basicnote.event.EventType
 import com.mertgolcu.basicnote.ext.handleHttpException
 import com.mertgolcu.basicnote.utils.FILL_REQUIRED_FIELDS
 import com.mertgolcu.basicnote.utils.Result
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ChangePasswordViewModel @ViewModelInject constructor(
-    private val repository: BasicNoteRepository,
-    private val preferences: PreferencesManager
+    private val repository: BasicNoteRepository
 ) : BaseViewModel() {
 
-    val password = MutableLiveData<String>("")
-    val newPassword = MutableLiveData<String>("")
-    val retypeNewPassword = MutableLiveData<String>("")
+    val password = MutableLiveData("")
+    val newPassword = MutableLiveData("")
+    val retypeNewPassword = MutableLiveData("")
 
-    private val tokenFlow = preferences.tokenPreferencesFlow
 
 
     fun onSaveClicked() = viewModelScope.launch {
@@ -35,10 +31,9 @@ class ChangePasswordViewModel @ViewModelInject constructor(
         }
         showLoading()
         when (val response = repository.updateUserPassword(
-            tokenFlow.first().token,
-            password.value!!,
-            newPassword.value!!,
-            retypeNewPassword.value!!
+            password = password.value!!,
+            newPassword = newPassword.value!!,
+            newPasswordConfirmation = retypeNewPassword.value!!
         )) {
             is Result.Success -> {
                 showMessage(response.response.message, EventType.SUCCESS)

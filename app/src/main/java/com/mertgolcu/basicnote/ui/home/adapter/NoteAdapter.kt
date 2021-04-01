@@ -7,8 +7,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.mertgolcu.basicnote.data.Note
 import com.mertgolcu.basicnote.databinding.ItemNoteBinding
-import java.util.*
-import kotlin.collections.ArrayList
 
 class NoteAdapter(private val listener: OnItemClickListener) :
     PagingDataAdapter<Note, NoteAdapter.NoteViewHolder>(NOTE_COMPARATOR) {

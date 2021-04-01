@@ -4,37 +4,26 @@ import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.data.Note
-import com.mertgolcu.basicnote.data.PreferencesManager
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.utils.Result
-import com.mertgolcu.basicnote.ext.handleErrorJson
 import com.mertgolcu.basicnote.ext.handleHttpException
 import com.mertgolcu.basicnote.utils.ADD_NOTE
 import com.mertgolcu.basicnote.utils.FILL_REQUIRED_FIELDS
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.receiveAsFlow
+import com.mertgolcu.basicnote.utils.Result
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 class NoteViewModel @ViewModelInject constructor(
     private val repository: BasicNoteRepository,
-    @Assisted val state: SavedStateHandle,
-    private val preferences: PreferencesManager
+    @Assisted val state: SavedStateHandle
 ) : BaseViewModel() {
-
-    private val tokenFlow = preferences.tokenPreferencesFlow
-
 
     val note = state.get<Note>("note")
     val mode = state.get<String>("mode")
-    val title = MutableLiveData<String>(note?.title ?: "")
-    val noteText = MutableLiveData<String>(note?.note ?: "")
+    val title = MutableLiveData(note?.title ?: "")
+    val noteText = MutableLiveData(note?.note ?: "")
 
 
     fun onClickSave() = viewModelScope.launch {
@@ -51,26 +40,12 @@ class NoteViewModel @ViewModelInject constructor(
                     title = title.value!!,
                     note = noteText.value!!
                 )
-                when (val response = repository.createNote(tokenFlow.first().token, newNote)) {
-                    is Result.Success -> {
-                        showMessage(response.response.message, EventType.SUCCESS)
-                        hideLoading()
-                    }
-
-                    is Result.Error -> {
-                        showMessage(response.exception.handleHttpException(), EventType.ERROR)
-                        hideLoading()
-                    }
-
-                }
-            }
-            else -> {
-                val updatedNote = note?.copy(
-                    title = title.value!!,
-                    note = noteText.value!!
-                )
                 when (val response =
-                    repository.updateNote(tokenFlow.first().token, updatedNote!!)) {
+                    repository.updateNote(
+                        newNote.id,
+                        newNote.title,
+                        newNote.note
+                    )) {
                     is Result.Success -> {
                         showMessage(response.response.message, EventType.SUCCESS)
                         hideLoading()
@@ -80,6 +55,31 @@ class NoteViewModel @ViewModelInject constructor(
                     is Result.Error -> {
                         showMessage(response.exception.handleHttpException(), EventType.ERROR)
                         hideLoading()
+                    }
+                }
+            }
+            else -> {
+                val updatedNote = note?.copy(
+                    title = title.value!!,
+                    note = noteText.value!!
+                )
+                if (updatedNote != null) {
+                    when (val response =
+                        repository.updateNote(
+                            updatedNote.id,
+                            updatedNote.title,
+                            updatedNote.note
+                        )) {
+                        is Result.Success -> {
+                            showMessage(response.response.message, EventType.SUCCESS)
+                            hideLoading()
+                            popBackStack()
+                        }
+
+                        is Result.Error -> {
+                            showMessage(response.exception.handleHttpException(), EventType.ERROR)
+                            hideLoading()
+                        }
                     }
                 }
             }

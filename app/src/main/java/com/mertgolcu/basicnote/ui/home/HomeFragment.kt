@@ -7,9 +7,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -24,10 +22,8 @@ import com.mertgolcu.basicnote.ext.hideKeyboard
 import com.mertgolcu.basicnote.ext.showSnackBar
 import com.mertgolcu.basicnote.ui.home.adapter.NoteAdapter
 import com.mertgolcu.basicnote.ui.home.adapter.NoteLoadStateAdapter
-import com.mertgolcu.basicnote.utils.*
-import com.mertgolcu.basicnote.utils.SwipeHelper.UnderlayButtonClickListener
+import com.mertgolcu.basicnote.utils.SwipeHelper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
 
 
 @AndroidEntryPoint
@@ -97,11 +93,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(R.layout.f
                             ContextCompat.getColor(
                                 requireActivity(),
                                 R.color.delete_button_background
-                            ),
-                            UnderlayButtonClickListener {
-                                viewModel.deleteNote(adapter.noteWithIndex(it))
-                            }
-                        )
+                            )
+                        ) { id ->
+                            viewModel.deleteNote(adapter.noteWithIndex(id))
+                        }
                     )
                     //edit button
                     underlayButtons.add(
@@ -118,11 +113,10 @@ class HomeFragment : BaseFragment<FragmentHomeBinding, HomeViewModel>(R.layout.f
                             ContextCompat.getColor(
                                 requireActivity(),
                                 R.color.edit_button_background
-                            ),
-                            UnderlayButtonClickListener {
-                                viewModel.onClickEdit(adapter.noteWithIndex(it))
-                            }
-                        )
+                            )
+                        ) { id ->
+                            viewModel.onClickEdit(adapter.noteWithIndex(id))
+                        }
                     )
                 }
             }

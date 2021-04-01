@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.utils.Result
 import com.mertgolcu.basicnote.ext.handleHttpException
 import com.mertgolcu.basicnote.utils.EMAIL_FORMAT_ERROR
 import com.mertgolcu.basicnote.utils.FILL_REQUIRED_FIELDS
+import com.mertgolcu.basicnote.utils.Result
 import kotlinx.coroutines.launch
 
 class SignUpViewModel @ViewModelInject constructor(
@@ -19,8 +19,8 @@ class SignUpViewModel @ViewModelInject constructor(
     @Assisted state: SavedStateHandle
 ) : BaseViewModel() {
 
-    val emailText = MutableLiveData<String>(state.get<String>("email"))
-    val passwordText = MutableLiveData<String>(state.get<String>("password"))
+    val emailText = MutableLiveData<String>(state.get("email"))
+    val passwordText = MutableLiveData<String>(state.get("password"))
     val fullNameText = MutableLiveData<String>()
 
 

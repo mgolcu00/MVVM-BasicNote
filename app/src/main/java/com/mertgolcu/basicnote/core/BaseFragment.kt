@@ -31,11 +31,9 @@ abstract class BaseFragment<B : ViewDataBinding, M : BaseViewModel> constructor(
     // Binding
     lateinit var binding: B
 
-    var rootView: View? = null
-        private set
+    private var rootView: View? = null
 
-    var isViewCreated = false
-        private set
+    private var isViewCreated = false
 
 
     override fun onCreateView(

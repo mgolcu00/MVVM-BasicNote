@@ -12,3 +12,6 @@ const val EMAIL_FORMAT_ERROR = "Please enter a valid email address."
 
 const val CURRENT_QUERY = "current_query"
 const val DEFAULT_QUERY = ""
+
+internal const val KEY_AUTHORIZATION = "Authorization"
+internal const val KEY_BEARER = "Bearer"

@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.mertgolcu.basicnote.core.BaseViewModel
 import com.mertgolcu.basicnote.data.BasicNoteRepository
 import com.mertgolcu.basicnote.event.EventType
-import com.mertgolcu.basicnote.utils.Result
 import com.mertgolcu.basicnote.ext.handleHttpException
 import com.mertgolcu.basicnote.utils.EMAIL_FORMAT_ERROR
 import com.mertgolcu.basicnote.utils.FILL_REQUIRED_FIELDS
+import com.mertgolcu.basicnote.utils.Result
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -25,7 +25,7 @@ class ForgotPasswordViewModel @ViewModelInject constructor(
     private val forgotPasswordEventChannel = Channel<ForgotPasswordEvent>()
     val forgotPasswordEvent = forgotPasswordEventChannel.receiveAsFlow()
 
-    val emailText = MutableLiveData<String>(state.get<String>("email"))
+    val emailText = MutableLiveData<String>(state.get("email"))
 
     fun onResetClick() = viewModelScope.launch {
 
