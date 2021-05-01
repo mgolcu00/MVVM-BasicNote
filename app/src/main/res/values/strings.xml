@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Basic Note</string>
+
+    <string name="email_empty_error">Your email address cannot be empty.</string>
+    <string name="fill_required_fields">Please fill in the required fields.</string>
+    <string name="password_empty_error">Your password cannot be empty.</string>
+    <string name="email_format_error">Please enter a valid email address.</string>
+    <string name="full_name_empty_error">Your full name cannot be empty.</string>
+    <string name="login_now">Already have an account? Sign in now</string>
+    <string name="register_now">New user? Sign up now</string>
+    <string name="password_reset_confirmation">Password Reset Confirmation</string>
+    <string name="login">Login</string>
+    <string name="add_note">Add Note</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="login_desc">Login or sign up to continue using our app.</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="password">Password</string>
+    <string name="e_mail_address">E-mail address</string>
+    <string name="full_name">Full Name</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_desc">Confirm your email and we’ll \n send the instructions.</string>
+    <string name="profile">Profile</string>
+    <string name="search">Search</string>
+    <string name="long_example_note_text">Having other strong marketing campaigns centered around fall can set you apart from competitors. It will also encourage customers to search out your deals by the time Black Friday comes around. In creating a separate fall campaign from the average Black Friday one, you are able to attract earlier holiday shoppers, while building brand visibility and awareness,</string>
+    <string name="example_note_title">Fall Marketing Campaign</string>
+    <string name="not_found_any_note">404 Not Found</string>
+    <string name="delete_note">Delete Note</string>
+    <string name="delete_note_message">Are you sure you want to delete this note.</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="note_deleted">Note deleted</string>
+    <string name="save">Save</string>
+    <string name="search_hint">Search..</string>
+    <string name="new_password">New Password</string>
+    <string name="retype_new_password">Retype New Password</string>
+    <string name="change_password">Change Password</string>
+    <string name="save_note">Save Note</string>
+    <string name="title_hint">Title</string>
+    <string name="note_hint">Note</string>
+
+
+</resources>
